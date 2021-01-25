@@ -89,7 +89,7 @@ def OCRImage(message):
     imageLink = getImageLink(message)
     response = requests.get(imageLink)
     img = Image.open(io.BytesIO(response.content))
-    # pytesseract.pytesseract.tesseract_cmd = "/app/.apt/usr/bin/tesseract"
+    pytesseract.pytesseract.tesseract_cmd = "/app/.apt/usr/bin/tesseract"
     text = pytesseract.image_to_string(img)
     return text
 
