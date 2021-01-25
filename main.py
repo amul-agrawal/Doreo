@@ -33,7 +33,8 @@ def getEmbed(message_text, channelmentions):
             mentions += mention
             mentions += "\n"
 
-        embed.add_field(name="Similar channels", value=mentions, inline=False)
+        print(mentions)
+        embed.add_field(name="Similar channels", value=(mentions or "hello"), inline=False)
     else:
         embed.add_field(name="Similar channels", value="No similar channel found", inline=False)
         
@@ -91,6 +92,7 @@ def OCRImage(message):
     img = Image.open(io.BytesIO(response.content))
     # pytesseract.pytesseract.tesseract_cmd = "/app/.apt/usr/bin/tesseract"
     text = pytesseract.image_to_string(img)
+    print(text)
     return text
 
 
