@@ -12,6 +12,7 @@ from PIL import ImageFilter
 from discord.ext import commands
 
 mydict = SqliteDict('./my_db.sqlite', autocommit=True)
+ERROR_STRING = "//ERROR"
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -26,14 +27,17 @@ def getEmbed(message_text, channelmentions):
      #Embed formatting
     embed=discord.Embed()
     embed.colour = 0x725E7A
-    embed.add_field(name="Requested Channel", value=message_text, inline=False)
+    if (not message_text) or (message_text == ERROR_STRING):
+        embed.add_field(name="Requested Channel", value="not sure what you requested", inline=False)
+        return embed
+    else:
+        embed.add_field(name="Requested Channel", value=(message_text), inline=False)
+
     if len(channelmentions) > 0:
         mentions = ">>> "
         for mention in channelmentions:
             mentions += mention
             mentions += "\n"
-
-        print(mentions)
         embed.add_field(name="Similar channels", value=(mentions or "hello"), inline=False)
     else:
         embed.add_field(name="Similar channels", value="No similar channel found", inline=False)
@@ -46,6 +50,8 @@ def getEmbed(message_text, channelmentions):
 def getChannelMentions(message, message_text):
     channelList = []
     channelmention = {}
+    if message_text == ERROR_STRING: 
+        return []
     res = []
     for channel in message.guild.channels:
         if type(channel) != discord.channel.TextChannel:
@@ -55,6 +61,7 @@ def getChannelMentions(message, message_text):
     for channel, weight in process.extract(message_text, channelList):
         if weight > 0:
             res.append(channelmention[channel])
+    print(res)
     return res
 
 
@@ -91,8 +98,11 @@ def OCRImage(message):
     response = requests.get(imageLink)
     img = Image.open(io.BytesIO(response.content))
     # pytesseract.pytesseract.tesseract_cmd = "/app/.apt/usr/bin/tesseract"
-    text = pytesseract.image_to_string(img)
-    print(text)
+    print(img)
+    text = pytesseract.image_to_string(img) or ""
+
+    if (not text) or len(text) == 0:
+        return ERROR_STRING
     return text
 
 
@@ -127,6 +137,7 @@ async def on_reaction_add(reaction, user):
     if mydict[reaction.message.id][3] == 0:
         await reaction.message.guild.create_text_channel(mydict[reaction.message.id][0]) 
     elif mydict[reaction.message.id][3] == 1:
+        print("on reaction add")
         await displayChannels(reaction.message, mydict[reaction.message.id][0])
 
 client.run(TOKEN)
