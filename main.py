@@ -135,12 +135,22 @@ async def on_message(message):
     if isImage(message):
         await message.add_reaction('\N{THUMBS UP SIGN}')
         mydict[message.id] = list([OCRImage(message), message.author.id, False, 1])
-    
-    elif message.content.startswith("!doreo-delete-channels"):
+
+    elif message.content.startswith("!doreo-"):
+        if not message.content.startswith("!doreo-delete-channels "):
+            await message.channel.send("works like this\n!doreo-delete-channels <time_in_minutes>")
+            return
+
         if (len(message.content) > (len("!doreo-delete-channels")+1)) and message.content[len("!doreo-delete-channels")+1].isdigit():
             await deleteChannels(message, message.content[len("!doreo-delete-channels")+1])
         else:
             await message.channel.send("works like this\n!doreo-delete-channels <time_in_minutes>")
+    
+    # elif message.content.startswith("!doreo-delete-channels"):
+    #     if (len(message.content) > (len("!doreo-delete-channels")+1)) and message.content[len("!doreo-delete-channels")+1].isdigit():
+    #         await deleteChannels(message, message.content[len("!doreo-delete-channels")+1])
+    #     else:
+    #         await message.channel.send("works like this\n!doreo-delete-channels <time_in_minutes>")
 
     elif message.content.startswith("!doreo") and len(message.content) >= 8:
         await displayChannels(message, message.content[7:])
