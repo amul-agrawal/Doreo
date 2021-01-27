@@ -159,15 +159,21 @@ async def on_reaction_add(reaction, user):
     mydict[reaction.message.id][2] = True
 
     if mydict[reaction.message.id][3] == 0:
-        await reaction.message.guild.create_text_channel(mydict[reaction.message.id][0]) 
-        new_channel_mention = getChannelMentions(reaction.message, (mydict[reaction.message.id][0]))[0]
+        channel_name = ""
+        if len(mydict[reaction.message.id][0]) <= 95:
+            channel_name = mydict[reaction.message.id][0]
+        else:
+            channel_name = mydict[reaction.message.id][0][:96]
+        
+        await reaction.message.guild.create_text_channel(channel_name[:96]) 
+        new_channel_mention = getChannelMentions(reaction.message, (channel_name))[0]
 
         created_channels = mydict.get('created_channels', [])
         created_channels.append(tuple([new_channel_mention[2:-1], datetime.now()]))
         mydict['created_channels'] = created_channels
 
         await reaction.message.channel.send(f"{new_channel_mention}")
-        
+
     elif mydict[reaction.message.id][3] == 1:
         await displayChannels(reaction.message, mydict[reaction.message.id][0])
 
